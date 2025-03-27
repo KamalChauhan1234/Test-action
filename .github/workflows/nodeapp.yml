@@ -1,0 +1,59 @@
+# Workflow ka naam
+name: Node.js CI-CD Pipeline
+
+# Kab chalega?
+on:
+  push:
+    branches: [ "main" ]  # Jab main branch pe push ho
+  pull_request:
+    branches: [ "main" ]  # Jab main branch pe PR aaye
+
+# Jobs define karte hain
+jobs:
+  build-and-test:  # Pehla job: Build aur Test
+    runs-on: ubuntu-latest  # Ubuntu machine pe chalega
+
+    steps:
+      # Step 1: Repo ka code checkout karo
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Node.js setup karo (jaise ADO mein environment setup)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Node.js version 16 use karenge
+
+      # Step 3: Dependencies install karo
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 4: Code lint karo (style check)
+      - name: Lint Code
+        run: npm run lint  # Maan le lint script package.json mein hai
+
+      # Step 5: Tests chalao
+      - name: Run Tests
+        run: npm test  # Maan le test script package.json mein hai
+
+  deploy:  # Dusra job: Deploy
+    runs-on: ubuntu-latest  # Ubuntu machine pe chalega
+    needs: build-and-test  # Pehle build-and-test complete ho
+
+    steps:
+      # Step 1: Code checkout karo
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Azure pe login karo
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  # Secret se credentials lenge
+
+      # Step 3: App deploy karo (Azure Web App pe)
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'my-node-app'  # Azure app ka naam
+          package: '.'  # Current directory deploy karo
