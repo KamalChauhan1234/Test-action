@@ -20,7 +20,7 @@ jobs:
 
       # Step 2: Node.js setup karo (jaise ADO mein environment setup)
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4.3.0
         with:
           node-version: '16'  # Node.js version 16 use karenge
 
